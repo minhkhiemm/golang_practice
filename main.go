@@ -2,25 +2,24 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
-
-	"github.com/gorilla/mux"
+	"time"
 )
 
-func Router() *mux.Router {
-	r := mux.NewRouter()
-	r.HandleFunc("/home", home).Methods("GET")
-	return r
-}
+const (
+	Port = ":7000"
+)
 
-func home(w http.ResponseWriter, _ *http.Request) {
-	fmt.Fprint(w, "Hello! Your request was processed.")
+func serverDynamic(w http.ResponseWriter, r *http.Request) {
+	response := "the time is now: " + time.Now().String()
+	fmt.Fprintln(w, response)
+}
+func serverStatic(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "static.html")
 }
 
 func main() {
-	log.Print("Starting the service...")
-	router := handlers.Router()
-	log.Print("The service is ready to listen and serve.")
-	log.Fatal(http.ListenAndServe(":8000", router))
+	http.HandleFunc("/static", serverStatic)
+	http.HandleFunc("/dynamic", serverDynamic)
+	http.ListenAndServe(Port, nil)
 }
